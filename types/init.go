@@ -1,9 +1,10 @@
 package types
 
 type Subject struct {
-	Code   string
-	Link   string
-	Name   string
-	Ementa string
-	Period int
+	Code         string
+	Link         string
+	Name         string
+	Ementa       string
+	Period       int
+	CargaHoraria int
 }

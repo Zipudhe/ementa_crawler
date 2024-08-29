@@ -12,11 +12,14 @@ func HandleSubjectInfo(element *colly.HTMLElement, collector *colly.Collector) t
 	nome := element.Text
 	code, link, period := utils.ExtractSubjectName(subjectUri)
 	element.Request.Visit(link)
-	// ementa := utils.ExtractSubjectEmenta(link, element.Request.Visit(link))
-	// fmt.Println("ementa: ", ementa)
 
-	// subject = types.Subject{code, link, nome, "", period}
 	subject := types.Subject{Code: code, Link: link, Name: nome, Ementa: "", Period: period}
 
 	return subject
+}
+
+func HandleSubjectHoras(element *colly.HTMLElement) int {
+	subjectHoras := utils.ExtractSubjectHours(element)
+
+	return subjectHoras
 }
