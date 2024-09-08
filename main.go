@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Zipudhe/ementa_crawler/handlers"
@@ -10,7 +13,7 @@ import (
 	"github.com/gocolly/colly"
 )
 
-func main() {
+func crawlSubjects() []types.Subject {
 	c := colly.NewCollector(
 		colly.MaxDepth(2),
 		colly.Async(true),
@@ -63,11 +66,58 @@ func main() {
 			}
 		}
 	})
-
 	c.Visit("https://alunoweb.ufba.br/SiacWWW/ListaDisciplinasEmentaPublico.do?cdCurso=112140&nuPerCursoInicial=20231")
 
 	c.Wait()
-	for i := 0; i < len(subjectList); i++ {
-		fmt.Println(subjectList[i])
+
+	return subjectList
+}
+
+func compareSubject(ufbaSubjects []types.Subject, hours int, ementa string) {
+	fmt.Println("Will compare subjects ementa: ", ementa)
+	fmt.Println("Will compare subjects hours: ", hours)
+	prompt := `Dadas duas ementas de matérias diferentes, faça uma análise de cada ementa, e utilizando como critério as palavras chaves de cada ementa e a quantidade de horas de cada matéria.
+  Lembre se que que caso a primeira matéria tenha uma quantidade de horas maior que a segunda em 20% isso afeta a equivalência das matérias.
+  Caso a ementa 2 seja mais abrangente mas tenha tópicos equivalentes isso afeta positivamente a equivalência.
+
+  Como saída, utilize exatamente e apenas o seguinte padrão:
+
+  "A matéria UNB tem uma equivalência de x%" onde "x" é a porcentagem definida por você
+
+    matéria UFBA:
+    Horas: "Horas matéria UFBA"
+    Ementa: "ementa matéria UFBA"
+
+    matéria UNB:
+    Horas: "Horas matéria UNB"
+    Ementa: "ementa matéria UNB"
+  `
+}
+
+func main() {
+	fmt.Println("Exatrcting UFBA subjects....")
+	reader := bufio.NewReader(os.Stdin)
+	subjects := crawlSubjects()
+
+	for {
+		fmt.Print("Horas da matéria: ")
+		hours_str, _ := reader.ReadString('\n')
+		hours_str = strings.TrimSpace(hours_str)
+		hours, error := strconv.Atoi(hours_str)
+
+		if error != nil {
+			fmt.Println("Failed to parse hours")
+			return
+		}
+
+		if hours == 0 {
+			break
+		}
+
+		fmt.Print("Ementa da matéria: ")
+		ementa, _ := reader.ReadString('\n')
+		ementa = strings.TrimSpace(ementa)
+
+		compareSubject(subjects, hours, ementa)
 	}
 }
